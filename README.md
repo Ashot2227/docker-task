@@ -16,3 +16,9 @@ cp .env.example .env
 - Проверка `GET /readyz` вернула `{"status": "ready", "storage": "sqlite"}`.
 - После `docker compose down` и повторного `docker compose up -d` счётчик сохранился: значение `2` до пересоздания контейнера и `2` после него.
 - Имя контейнера изменилось с `1b4349d6907b` на `8fac6ede342f`, то есть Compose создал новый контейнер, подключив его к прежнему volume.
+
+## Проверки уровня 8
+
+- После трёх запросов `POST /increment` счётчик был равен `3`. После `docker compose down` и `docker compose up -d` `GET /` по-прежнему возвращал `count: 3`. Имя контейнера изменилось, то есть приложение было пересоздано.
+- После `docker compose stop redis` приложение осталось запущенным: `GET /healthz` вернул HTTP `200`, `GET /readyz` и `POST /increment` — HTTP `503`.
+- После `docker compose start redis` Redis стал `healthy`. Без перезапуска приложения `/readyz` снова вернул HTTP `200`, `GET /` показал `count: 3`, а следующий `POST /increment` увеличил счётчик до `4`.
